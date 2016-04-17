@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Lomonosov Traffic Viewer </title>
+	<meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="Styles/App.css">
+    <link rel="stylesheet" type="text/css" href="Scripts/idd/idd.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+    <script src="http://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
+    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/3.1.2/rx.lite.min.js"></script>
+    <script type='text/javascript' src='Scripts/knockoutjs/knockout-3.4.0.js'></script>
+    <script src="Scripts/idd/idd.js"></script> 
+    <script type='text/javascript' src='Scripts/App.js'></script>
+</head>
+<body>
+    <div>
+        <div style="display:inline-block;height:600px">
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <td class="unselectable" style="vertical-align: middle; font-weight: 600">User ID</td>
+                        <td class="unselectable" style="vertical-align: middle; font-weight: 600">Input Bytes</td>
+                        <td class="unselectable" style="vertical-align: middle; font-weight: 600">Input Packets</td>
+                        <td class="unselectable" style="vertical-align: middle; font-weight: 600">Output Bytes</td>
+                        <td class="unselectable" style="vertical-align: middle; font-weight: 600">Output Packets</td>
+                        <td data-bind="visible: isBoth" class="unselectable" style="vertical-align: middle; font-weight: 600">Bytes sum</td>
+                        <td data-bind="visible: isBoth" class="unselectable" style="vertical-align: middle; font-weight: 600">Packets sum</td>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: selectedUsers">
+                    <tr>
+                        <td data-bind="text: UID"  />
+                        <td data-bind="text: bytes_in"  />
+                        <td data-bind="text: packets_in"  />
+                        <td data-bind="text: bytes_out"  />
+                        <td data-bind="text: packets_out"  />
+                        <td data-bind="visible: $parent.isBoth, text: bytes_in + bytes_out"  />
+                        <td data-bind="visible: $parent.isBoth, text: packets_in + packets_out" />
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="idd" data-idd-plot="chart" style="display: inline-block; width: 800px; height: 600px;" />
+    </div>
+    <div id="toolbar">
+        <input class="mode_radio" type="radio" name="mode" value="input" data-bind="checked: mode" />Input
+        <input class="mode_radio" type="radio" name="mode" value="output" data-bind="checked: mode" />Output
+        <input class="mode_radio" type="radio" name="mode" value="both" data-bind="checked: mode" />Both
+    </div>
+</body>
+</html>

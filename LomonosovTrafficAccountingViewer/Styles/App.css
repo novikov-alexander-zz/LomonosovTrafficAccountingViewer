@@ -1,0 +1,23 @@
+﻿#data-table{
+    background: black; /* Цвет фона таблицы */
+    border-spacing: 1px; 
+}
+
+#data-table td{
+    padding: 0.15em;
+    background: white; /* Цвет фона ячеек */
+    width:100px;
+} 
+
+#idd{
+    float:right;
+}
+
+.mode_radio{
+    display:inline-block;
+}
+
+.unselectable{
+    cursor:default;
+}
+
