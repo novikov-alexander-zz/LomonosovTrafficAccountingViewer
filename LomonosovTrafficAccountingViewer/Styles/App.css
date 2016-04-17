@@ -9,6 +9,10 @@
     width:100px;
 } 
 
+#datepicker{
+    display:inline-block;
+}
+
 #idd{
     float:right;
 }

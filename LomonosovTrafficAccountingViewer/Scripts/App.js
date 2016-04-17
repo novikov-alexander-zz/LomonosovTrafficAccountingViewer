@@ -205,7 +205,16 @@ function AppViewModel() {
         return getTop(this.mode(), this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
     }, this);
 
+    var plot = InteractiveDataDisplay.asPlot("idd");
 
+    this.graphic = ko.computed(function () {
+       // plot.clear();
+        var x = [], y = [];
+       
+        plot.polyline("sum", { x: ["a", "b"], y: [2, 3] });
+
+    }, this);
+    
     $.get("trafficFile-2016-04-16.csv", function (data) {
         _this.csvData(data);
     });
@@ -213,7 +222,8 @@ function AppViewModel() {
 }
 
 $(document).ready(function () {
+    $("#datepicker").datepicker();
+    $("#slider").slider();
     // Activates knockout.js
     ko.applyBindings(new AppViewModel());
-    InteractiveDataDisplay.asPlot("idd");
 });
