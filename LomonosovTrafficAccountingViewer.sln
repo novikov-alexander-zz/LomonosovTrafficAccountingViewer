@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LomonosovTrafficAccountingViewer", "LomonosovTrafficAccountingViewer\LomonosovTrafficAccountingViewer.csproj", "{B6FBED7E-0A48-49A2-874A-42374DFBCB0F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LomonosovTrafficAccountingViewer", "LomonosovTrafficAccountingViewer\LomonosovTrafficAccountingViewer.csproj", "{B9D9D4AD-34CE-4A60-81CA-7FE656948D7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B6FBED7E-0A48-49A2-874A-42374DFBCB0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B6FBED7E-0A48-49A2-874A-42374DFBCB0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B6FBED7E-0A48-49A2-874A-42374DFBCB0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B6FBED7E-0A48-49A2-874A-42374DFBCB0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9D9D4AD-34CE-4A60-81CA-7FE656948D7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9D9D4AD-34CE-4A60-81CA-7FE656948D7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9D9D4AD-34CE-4A60-81CA-7FE656948D7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9D9D4AD-34CE-4A60-81CA-7FE656948D7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
