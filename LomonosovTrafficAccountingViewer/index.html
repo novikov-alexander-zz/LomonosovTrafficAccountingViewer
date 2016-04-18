@@ -13,11 +13,22 @@
     <script type='text/javascript' src='Scripts/knockoutjs/knockout-3.4.0.js'></script>
     <script src="Scripts/idd/idd.js"></script> 
     <script type='text/javascript' src='Scripts/App.js'></script>
+
 </head>
 <body>
     <div>
+        <div id="toolbar">
+            <p class="date">Date (from): <input data-bind="value:startDate" type="text" id="datepicker1"> (to) <input data-bind="value:endDate" type="text" id="datepicker2"> </p>
+            <br /> <br />
+            <br />
+            <input class="mode_radio" type="radio" name="mode" value="input" data-bind="checked: mode" />Input
+            <input class="mode_radio" type="radio" name="mode" value="output" data-bind="checked: mode" />Output
+            <input class="mode_radio" type="radio" name="mode" value="both" data-bind="checked: mode" />Both
+            <br /> <br /> <br />
+        </div>
         <div style="display:inline-block;height:600px">
             <table id="data-table">
+                <caption style="vertical-align: middle; font-weight: 600"><font size="6">Top Users</font></caption>
                 <thead>
                     <tr>
                         <td class="unselectable" style="vertical-align: middle; font-weight: 600">User ID</td>
@@ -31,25 +42,18 @@
                 </thead>
                 <tbody data-bind="foreach: selectedUsers">
                     <tr>
-                        <td data-bind="text: UID"  />
-                        <td data-bind="text: bytes_in"  />
-                        <td data-bind="text: packets_in"  />
-                        <td data-bind="text: bytes_out"  />
-                        <td data-bind="text: packets_out"  />
-                        <td data-bind="visible: $parent.isBoth, text: bytes_in + bytes_out"  />
+                        <td data-bind="text: UID" />
+                        <td data-bind="text: bytes_in" />
+                        <td data-bind="text: packets_in" />
+                        <td data-bind="text: bytes_out" />
+                        <td data-bind="text: packets_out" />
+                        <td data-bind="visible: $parent.isBoth, text: bytes_in + bytes_out" />
                         <td data-bind="visible: $parent.isBoth, text: packets_in + packets_out" />
                     </tr>
                 </tbody>
             </table>
         </div>
-        <div id="idd" data-idd-plot="chart" style="display: inline-block; width: 800px; height: 600px;" />
-    </div>
-    <div id="toolbar">
-        Date: <input type="text" id="datepicker">
-        <input class="mode_radio" type="radio" name="mode" value="input" data-bind="checked: mode" />Input
-        <input class="mode_radio" type="radio" name="mode" value="output" data-bind="checked: mode" />Output
-        <input class="mode_radio" type="radio" name="mode" value="both" data-bind="checked: mode" />Both 
-        <div id="slider"></div>
+        <div id="idd" data-idd-plot="chart" style="display: inline-block; width: 1000px; height: 600px;" />
     </div>
 </body>
 </html>

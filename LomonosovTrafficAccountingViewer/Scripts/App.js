@@ -66,7 +66,7 @@ function getStructure() //parsing. Return value users structure
         users[i1].user[j1].packets_out = elemArr[8];
         j1++;
     }
-	
+
     return users;
 }
 
@@ -77,7 +77,7 @@ function getTop(mode, startD, startT, endD, endT, usrList)  //just sort. If sort
 {
     var i, j, idxStart = -1, idxEnd = -1;
     var topUsers = [];
-    i = usrList.length - 1;
+    i = usrList.length - 1; 
     if (i === -1)
         return [];
     for (j = 0; j < usrList[i].user.length; j++) {
@@ -96,7 +96,8 @@ function getTop(mode, startD, startT, endD, endT, usrList)  //just sort. If sort
             break;
         }
     }
-
+    if (idxStart == -1 || idxEnd == -1)
+        return [];
     i = idxStart;
     while (i <= idxEnd) {
         for (j = 0; j < usrList[i].user.length; j++) {
@@ -151,7 +152,8 @@ function getTopSummary(startD, startT, endD, endT, usrList)  //Like previous, bu
             break;
         }
     }
-
+    if (idxStart == -1 || idxEnd == -1)
+        return [];
     i = idxStart;
     while (i <= idxEnd) {
         for (j = 0; j < usrList[i].user.length; j++) {
@@ -184,46 +186,202 @@ function getTopSummary(startD, startT, endD, endT, usrList)  //Like previous, bu
     return topUsers;
 }
 
+function getTime(startD, startT, endD, endT, usrList)  
+{
+    var i, j, idxStart = -1, idxEnd = -1;
+    var times = [];
+    if (usrList.length == 0)
+        return [];
+
+    for (i = 0; i < usrList.length; i++) {
+        if ((usrList[i].data == startD) && (usrList[i].time == startT)) {
+            idxStart = i;
+            break;
+        }
+    }
+    for (i = 0; i < usrList.length; i++) {
+        if ((usrList[i].data == endD) && (usrList[i].time == endT)) {
+            idxEnd = i;
+            break;
+        }
+    }
+
+    i = idxStart;
+	j = 0;
+    while (i <= idxEnd) 
+    {
+        times[j] = usrList[i].data +" "+ usrList[i].time; 
+		j++;
+		i++;
+    }
+    
+    return times;
+}
+
+function getTicks(times)
+{
+    var ticks = [];
+    ticks[0] = 0;
+    for (var i = 1; i < times.length; i++)
+        ticks[i] = ticks[i - 1] * 1 + 1; 
+    return ticks;
+}
+
+function getGraphic(mode, startD, startT, endD, endT, usrList)
+{
+    var graphUsers = [];
+    var i, j, idxStart = -1, idxEnd = -1;
+
+    if (usrList.length == 0)
+        return [];
+
+    for (i = 0; i < usrList.length; i++) {
+        if ((usrList[i].data == startD) && (usrList[i].time == startT)) {
+            idxStart = i;
+            break;
+        }
+    }
+    for (i = 0; i < usrList.length; i++) {
+        if ((usrList[i].data == endD) && (usrList[i].time == endT)) {
+            idxEnd = i;
+            break;
+        }
+    }
+    if (idxStart == -1 || idxEnd == -1)
+        return [];
+
+    i = idxStart;
+    j = 0;
+    while (i <= idxEnd)
+    {
+        graphUsers[j] = 0;
+        i++;
+        j++;
+    }
+
+    i = idxStart;
+    var k = 0;
+    var sum = 0;
+
+    while (i <= idxEnd) {
+        for (j = 0; j < usrList[i].user.length; j++) {
+            if (mode === "input")
+                sum = sum*1 + usrList[i].user[j].bytes_in*1;
+            if (mode === "output")
+                sum = sum*1 + usrList[i].user[j].bytes_out*1;
+            if (mode === "both")
+                sum = sum*1 + usrList[i].user[j].bytes_in*1 + usrList[i].user[j].bytes_out*1;
+        } 
+        sum = sum / 1024;
+        sum = sum / 1024;
+        graphUsers[k] = sum; 
+        sum = 0;
+        i++;
+        k++;
+    }
+    return graphUsers;
+}
 
 function AppViewModel() {
     var _this = this;
     this.csvData = ko.observable("");
-    this.endDate = ko.observable("12 04 2016");
-    this.endTime = ko.observable("17:34:31");
+    this.endDate = ko.observable("");
+    this.endTime = ko.observable("17:35:16");
+    this.startDate = ko.observable("");
+    this.startTime = ko.observable("17:34:16");
     this.isBoth = ko.pureComputed(function () {
         if (_this.mode() === "both")
             return true;
         return false;
     })
     this.mode = ko.observable("input");
-    this.startDate = ko.observable("12 04 2016");
-    this.startTime = ko.observable("17:34:16");
-    this.users = ko.pureComputed(getStructure, this);
+    this.users = ko.pureComputed(getStructure, this); 
+    this.times = ko.pureComputed(function () {
+        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
+            return [];
+        return getTime(this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users())
+    }, this);
+    this.ticks = ko.pureComputed(function () {
+        return getTicks(this.times())
+    }, this)
     this.selectedUsers = ko.pureComputed(function () {
+        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
+            return [];
         if (this.mode() === "both")
-            return getTopSummary(this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
+            return getTopSummary(this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users()); 
         return getTop(this.mode(), this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
+    }, this);
+    
+    this.inUsers = ko.computed(function () {
+        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
+            return [];
+        return getGraphic("input", this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
+    }, this);
+
+    this.outUsers = ko.computed(function () {
+        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
+            return [];
+        return getGraphic("output", this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
+    }, this);
+
+    this.bothUsers = ko.computed(function () {
+        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
+            return [];
+        return getGraphic("both", this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
     }, this);
 
     var plot = InteractiveDataDisplay.asPlot("idd");
 
     this.graphic = ko.computed(function () {
-       // plot.clear();
-        var x = [], y = [];
-       
-        plot.polyline("sum", { x: ["a", "b"], y: [2, 3] });
 
+        plot.polyline("Input Mb", 
+		{ 
+			x: false,
+			y: this.inUsers(),
+            thickness: 1.5,
+            stroke: 'blue'
+		});
+
+        plot.polyline("Output Mb",
+		{
+		    x: false,
+		    y: this.outUsers(),
+		    thickness: 1.5,
+            stroke: 'red'
+		});
+
+        plot.polyline("Summary Mb",
+        {
+            x: false,
+            y: this.bothUsers(),
+            thickness: 1.5,
+            stroke: 'green'
+        });
+
+		var numAxis = plot.getAxes("bottom");
+		numAxis[0].remove();
+
+		plot.addAxis("bottom", "labels", {
+		labels: this.times(),
+		ticks: this.ticks()
+	});
     }, this);
     
     $.get("trafficFile-2016-04-16.csv", function (data) {
         _this.csvData(data);
     });
-
 }
 
 $(document).ready(function () {
-    $("#datepicker").datepicker();
-    $("#slider").slider();
+    $("#datepicker1").datepicker({
+        dateFormat: "dd mm yy"
+    });
+    $("#datepicker2").datepicker({
+        dateFormat: "dd mm yy"
+    });
+
+   // $("#timepicker").timepicker();
+
     // Activates knockout.js
     ko.applyBindings(new AppViewModel());
 });

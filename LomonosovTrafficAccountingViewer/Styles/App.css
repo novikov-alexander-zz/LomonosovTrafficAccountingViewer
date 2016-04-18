@@ -9,7 +9,11 @@
     width:100px;
 } 
 
-#datepicker{
+#datepicker1{
+    display:inline-block;
+}
+
+#datepicker2{
     display:inline-block;
 }
 
@@ -24,4 +28,11 @@
 .unselectable{
     cursor:default;
 }
+
+.date{
+    font-weight:bold;
+    font-family:'Cambria Math';
+    font-size:18px;
+}
+
 
