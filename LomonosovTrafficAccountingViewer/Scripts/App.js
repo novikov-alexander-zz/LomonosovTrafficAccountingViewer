@@ -412,10 +412,17 @@ function AppViewModel() {
             return [];
         return getIds(this.selectedUsers());
     }, this);
+
     this.top5 = ko.computed(function () {
         if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [] || this.ids().length == 0)
             return [];
         return getTopGraphic(5, this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users(), this.ids());
+    }, this);
+
+    this.top10 = ko.computed(function () {
+        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [] || this.ids().length == 0)
+            return [];
+        return getTopGraphic(10, this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users(), this.ids());
     }, this);
     
     this.inUsers = ko.computed(function () {
@@ -470,6 +477,7 @@ function AppViewModel() {
     var plot = InteractiveDataDisplay.asPlot("idd");
     var polylines1 = [];
     var polylines2 = [];
+    var polylines3 = [];
 
     this.graphic = ko.computed(function () {
 
@@ -478,6 +486,9 @@ function AppViewModel() {
             if (polylines2.length != 0)
                 for (var k = 0; k < polylines2.length; k++)
                     polylines2[k].remove();
+            if (polylines3.length != 0)
+                for (var k = 0; k < polylines3.length; k++)
+                    polylines3[k].remove();
 
             polylines1[0] = plot.polyline("Input Mb",
             {
@@ -506,14 +517,41 @@ function AppViewModel() {
         if (this.modeGraph() === "top5")
         {
             if (this.top5().length != 0) {
+
                 if (polylines1.length != 0)
                     for (var k = 0; k < polylines1.length; k++)
                         polylines1[k].remove();
+                if (polylines3.length != 0)
+                    for (var k = 0; k < polylines3.length; k++)
+                        polylines3[k].remove();
+
                 for (var k = 0; k < 5; k++) {
                     polylines2[k] = plot.polyline(this.top5()[k].UID,
                     {
                         x: false,
                         y: this.top5()[k].bytes,
+                        thickness: 1.5,
+                        stroke: 'blue'
+                    });
+                }
+            }
+        }
+
+        if (this.modeGraph() === "top10") {
+            if (this.top5().length != 0) {
+
+                if (polylines1.length != 0)
+                    for (var k = 0; k < polylines1.length; k++)
+                        polylines1[k].remove();
+                if (polylines2.length != 0)
+                    for (var k = 0; k < polylines2.length; k++)
+                        polylines2[k].remove();
+
+                for (var k = 0; k < 10; k++) {
+                    polylines3[k] = plot.polyline(this.top10()[k].UID,
+                    {
+                        x: false,
+                        y: this.top10()[k].bytes,
                         thickness: 1.5,
                         stroke: 'blue'
                     });
