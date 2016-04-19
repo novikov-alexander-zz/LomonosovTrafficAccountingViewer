@@ -25,6 +25,10 @@
     display:inline-block;
 }
 
+.mode_radio2{
+    display:inline-block;
+}
+
 .unselectable{
     cursor:default;
 }
@@ -35,4 +39,8 @@
     font-size:18px;
 }
 
+.radioB{
+    font-family:'Cambria Math';
+    font-size:19px;
+}
 

@@ -281,35 +281,141 @@ function getGraphic(mode, startD, startT, endD, endT, usrList)
     }
     return graphUsers;
 }
+function getTopGraphic(n, startD, startT, endD, endT, usrList, ids)
+{
+    var i, j, idxStart = -1, idxEnd = -1;
+    var usr = [];
+
+    if (usrList.length == 0)
+        return [];
+
+    for (i = 0; i < n; i++)
+    {
+        usr.push({});
+        usr[i].bytes = [];
+    }
+
+    if (n > ids.length)
+        n = ids.length;
+
+    for (i = 0; i < n; i++) 
+        usr[i].UID = ids[i];
+
+    for (i = 0; i < usrList.length; i++) {
+        if ((usrList[i].data == startD) && (usrList[i].time == startT)) {
+            idxStart = i;
+            break;
+        }
+    }
+    for (i = 0; i < usrList.length; i++) {
+        if ((usrList[i].data == endD) && (usrList[i].time == endT)) {
+            idxEnd = i;
+            break;
+        }
+    }
+    if (idxStart == -1 || idxEnd == -1)
+        return [];
+
+    i = idxStart;
+    var k = 0;
+    var sum = 0;
+
+    while (i <= idxEnd) 
+    {
+        for (j=0; j<n; j++)
+        {
+            for (var f = 0; f < ids.length; f++)
+            {
+                if (usrList[i].user[f].UID == usr[j].UID) {
+                    sum = usrList[i].user[f].bytes_in * 1 + usrList[i].user[f].bytes_out * 1;
+                    sum = sum / 1024;
+                    sum = sum / 1024;
+                    usr[j].bytes[k] = sum;
+                }
+            }
+        }
+        i++;
+        k++;
+    }
+    return usr;
+}
+
+function topCut(n, topUsers) {
+    var cutTop = [];
+    for (var i = 0; i < n; i++)
+        cutTop.push({});
+
+    for (var i=0; i<n; i++)
+    {
+        cutTop[i].UID = topUsers[i].UID;
+        cutTop[i].packets_in = topUsers[i].packets_in;
+        cutTop[i].packets_out = topUsers[i].packets_out;
+        cutTop[i].bytes_in = topUsers[i].bytes_in;
+        cutTop[i].bytes_out = topUsers[i].bytes_out;
+    }
+    return cutTop;
+}
+
+function timeCut(n,times)
+{
+    var cutT = [];
+    for (var i = 0; i < n; i++)
+        cutT[i] = times[i];
+    return cutT;
+}
+
+function getIds(users)
+{
+    var ids = [];
+    if (users.length == 0)
+        return []; 
+    for (var i = 0; i < users.length; i++)
+        ids[i] = users[i].UID;
+    return ids;
+}
 
 function AppViewModel() {
     var _this = this;
     this.csvData = ko.observable("");
     this.endDate = ko.observable("");
-    this.endTime = ko.observable("17:35:16");
+    this.endTime = ko.observable("");
     this.startDate = ko.observable("");
-    this.startTime = ko.observable("17:34:16");
+    this.startTime = ko.observable("");
     this.isBoth = ko.pureComputed(function () {
         if (_this.mode() === "both")
             return true;
         return false;
     })
     this.mode = ko.observable("input");
-    this.users = ko.pureComputed(getStructure, this); 
-    this.times = ko.pureComputed(function () {
+    this.modeGraph = ko.observable("top5");
+    this.users = ko.pureComputed(getStructure, this);
+
+    this.times = ko.computed(function () {
         if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
             return [];
         return getTime(this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users())
     }, this);
-    this.ticks = ko.pureComputed(function () {
+    this.ticks = ko.computed(function () {
         return getTicks(this.times())
     }, this)
+
     this.selectedUsers = ko.pureComputed(function () {
         if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
             return [];
         if (this.mode() === "both")
             return getTopSummary(this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users()); 
         return getTop(this.mode(), this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
+    }, this);
+
+    this.ids = ko.computed(function () {
+        if (this.selectedUsers() === [])
+            return [];
+        return getIds(this.selectedUsers());
+    }, this);
+    this.top5 = ko.computed(function () {
+        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [] || this.ids().length == 0)
+            return [];
+        return getTopGraphic(5, this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users(), this.ids());
     }, this);
     
     this.inUsers = ko.computed(function () {
@@ -330,42 +436,101 @@ function AppViewModel() {
         return getGraphic("both", this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
     }, this);
 
+    var tpb = $("#timepicker_begin").timepicker({
+        timeFormat: "HH:mm:ss",
+        startTime: "00:00:00",
+        interval: 15
+    });
+
+    var tpe = $("#timepicker_end").timepicker({
+        timeFormat: "HH:mm:ss",
+        startTime: "00:00:00",
+        interval: 15
+    });
+
+    ko.computed(function () {
+        if (_this.users()[0]) {
+            var lastDate = _this.users()[_this.users().length - 1].time.split(':');
+            var lastMin = lastDate[1]*1;
+            var lastSec = lastDate[2]*1;
+            lastMin = lastMin % 15;
+
+            if (_this.startDate() == _this.endDate()) {
+                tpb.timepicker().option('startTime', _this.users()[0].time);
+                tpe.timepicker().option('startTime', _this.startTime() != "" ? _this.startTime():_this.users()[0].time);
+            }
+            else {
+                tpb.timepicker().option('startTime', _this.users()[0].time);
+                var newDate = new Date(0, 0, 0, 0, lastMin, lastSec);
+                tpe.timepicker().option('startTime', newDate);
+            }
+        }
+    });
+
     var plot = InteractiveDataDisplay.asPlot("idd");
+    var polylines1 = [];
+    var polylines2 = [];
 
     this.graphic = ko.computed(function () {
 
-        plot.polyline("Input Mb", 
-		{ 
-			x: false,
-			y: this.inUsers(),
-            thickness: 1.5,
-            stroke: 'blue'
-		});
+        if (this.modeGraph() === "all") {
 
-        plot.polyline("Output Mb",
-		{
-		    x: false,
-		    y: this.outUsers(),
-		    thickness: 1.5,
-            stroke: 'red'
-		});
+            if (polylines2.length != 0)
+                for (var k = 0; k < polylines2.length; k++)
+                    polylines2[k].remove();
 
-        plot.polyline("Summary Mb",
+            polylines1[0] = plot.polyline("Input Mb",
+            {
+                x: false,
+                y: this.inUsers(),
+                thickness: 1.5,
+                stroke: 'blue'
+            });
+
+           polylines1[1] =  plot.polyline("Output Mb",
+            {
+                x: false,
+                y: this.outUsers(),
+                thickness: 1.5,
+                stroke: 'red'
+            });
+
+           polylines1[2] = plot.polyline("Summary Mb",
+            {
+                x: false,
+                y: this.bothUsers(),
+                thickness: 1.5,
+                stroke: 'green'
+            });
+        }
+        if (this.modeGraph() === "top5")
         {
-            x: false,
-            y: this.bothUsers(),
-            thickness: 1.5,
-            stroke: 'green'
-        });
+            if (this.top5().length != 0) {
+                if (polylines1.length != 0)
+                    for (var k = 0; k < polylines1.length; k++)
+                        polylines1[k].remove();
+                for (var k = 0; k < 5; k++) {
+                    polylines2[k] = plot.polyline(this.top5()[k].UID,
+                    {
+                        x: false,
+                        y: this.top5()[k].bytes,
+                        thickness: 1.5,
+                        stroke: 'blue'
+                    });
+                }
+            }
+        }
 
-		var numAxis = plot.getAxes("bottom");
-		numAxis[0].remove();
-
-		plot.addAxis("bottom", "labels", {
-		labels: this.times(),
-		ticks: this.ticks()
-	});
+        var numAxis = plot.getAxes("bottom");
+        numAxis[0].remove();
+        if (this.times().length != 0 || this.ticks().length != 0)
+            plot.addAxis("bottom", "labels", {
+                labels: this.times(),
+                ticks: this.ticks()
+            });
     }, this);
+
+
     
     $.get("trafficFile-2016-04-16.csv", function (data) {
         _this.csvData(data);
@@ -380,7 +545,39 @@ $(document).ready(function () {
         dateFormat: "dd mm yy"
     });
 
-   // $("#timepicker").timepicker();
+    ko.bindingHandlers.timepicker = {
+        init: function (element, valueAccessor, allBindingsAccessor) {
+            //initialize timepicker with some optional options
+            var options = allBindingsAccessor().timepickerOptions || {},
+                input = $(element).timepicker(options);
+
+            //handle the field changing
+            ko.utils.registerEventHandler(element, "time-change", function (event, time) {
+                var observable = valueAccessor(),
+                    current = ko.utils.unwrapObservable(observable);
+
+                if (current !== element.value) {
+                    observable(element.value);
+                }
+            });
+
+            //handle disposal (if KO removes by the template binding)
+            ko.utils.domNodeDisposal.addDisposeCallback(element, function () {
+                $(element).timepicker("destroy");
+            });
+        },
+
+        update: function (element, valueAccessor) {
+            var value = ko.utils.unwrapObservable(valueAccessor()),
+                // calling timepicker() on an element already initialized will
+                // return a TimePicker object
+                instance = $(element).timepicker();
+
+            if (value - instance.getTime() !== 0) {
+                instance.setTime(value);
+            }
+        }
+    };
 
     // Activates knockout.js
     ko.applyBindings(new AppViewModel());
