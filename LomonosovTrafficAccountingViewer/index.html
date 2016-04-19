@@ -17,10 +17,9 @@
     <script type='text/javascript' src='Scripts/App.js'></script>
 
 </head>
-<body>
+<body id="project">
     <div>
         <div id="toolbar">
-            
                 <p class="date">Date (from): <input data-bind="value:startDate" type="text" id="datepicker1"> (to) <input data-bind="value:endDate" type="text" id="datepicker2"> </p>
                 <br />
             
@@ -39,27 +38,29 @@
         </div>
         <div data-bind="visible: (startTime() != '' && endTime() !='')" style="display:inline-block;height:600px">
             <table id="data-table">
-                <caption style="vertical-align: middle; font-weight: 600"><font size="6">Top Users</font></caption>
+                <caption style="vertical-align: middle; font-weight: 600"><font size="6">Top <input data-bind="value:topN" class="top" type="text" /> Users</font></caption>
                 <thead>
                     <tr>
+                        <td class="unselectable" style="vertical-align: middle; font-weight: 600">№</td>
                         <td class="unselectable" style="vertical-align: middle; font-weight: 600">User ID</td>
-                        <td class="unselectable" style="vertical-align: middle; font-weight: 600">Input Bytes</td>
-                        <td class="unselectable" style="vertical-align: middle; font-weight: 600">Input Packets</td>
-                        <td class="unselectable" style="vertical-align: middle; font-weight: 600">Output Bytes</td>
-                        <td class="unselectable" style="vertical-align: middle; font-weight: 600">Output Packets</td>
-                        <td data-bind="visible: isBoth" class="unselectable" style="vertical-align: middle; font-weight: 600">Bytes sum</td>
-                        <td data-bind="visible: isBoth" class="unselectable" style="vertical-align: middle; font-weight: 600">Packets sum</td>
+                        <td data-bind="style: { 'background-color': mode() == 'input' ? '#BCFF9E': 'white'}"  class=" unselectable" style="vertical-align: middle; font-weight: 600">Input Bytes</td>
+                        <td data-bind="style: { 'background-color': mode() == 'input' ? '#BCFF9E': 'white'}" class="unselectable" style="vertical-align: middle; font-weight: 600">Input Packets</td>
+                        <td data-bind="style: { 'background-color': mode() == 'output' ? '#BCFF9E': 'white'}" class="unselectable" style="vertical-align: middle; font-weight: 600">Output Bytes</td>
+                        <td data-bind="style: { 'background-color': mode() == 'output' ? '#BCFF9E': 'white'}" class="unselectable" style="vertical-align: middle; font-weight: 600">Output Packets</td>
+                        <td data-bind="visible: isBoth, style: { 'background-color': mode() == 'both' ? '#BCFF9E': 'white'}" class="unselectable" style="vertical-align: middle; font-weight: 600">Bytes sum</td>
+                        <td data-bind="visible: isBoth, style: { 'background-color': mode() == 'both' ? '#BCFF9E': 'white'}" class="unselectable" style="vertical-align: middle; font-weight: 600">Packets sum</td>
                     </tr>
                 </thead>
                 <tbody data-bind="foreach: selectedUsers">
                     <tr>
+                        <td data-bind="text: $index() + 1" />
                         <td data-bind="text: UID" />
-                        <td data-bind="text: bytes_in" />
-                        <td data-bind="text: packets_in" />
-                        <td data-bind="text: bytes_out" />
-                        <td data-bind="text: packets_out" />
-                        <td data-bind="visible: $parent.isBoth, text: bytes_in + bytes_out" />
-                        <td data-bind="visible: $parent.isBoth, text: packets_in + packets_out" />
+                        <td data-bind="text: bytes_in, style: { 'background-color': $parent.mode() == 'input' ? '#BCFF9E': 'white'}" />
+                        <td data-bind="text: packets_in, style: { 'background-color': $parent.mode() == 'input' ? '#BCFF9E': 'white'}" />
+                        <td data-bind="text: bytes_out, style: { 'background-color': $parent.mode() == 'output' ? '#BCFF9E': 'white'}" />
+                        <td data-bind="text: packets_out, style: { 'background-color': $parent.mode() == 'output' ? '#BCFF9E': 'white'}" />
+                        <td data-bind="visible: $parent.isBoth, text: bytes_in + bytes_out, style: { 'background-color': $parent.mode() == 'both' ? '#BCFF9E': 'white'}" />
+                        <td data-bind="visible: $parent.isBoth, text: packets_in + packets_out, style: { 'background-color': $parent.mode() == 'both' ? '#BCFF9E': 'white'}" />
                     </tr>
                 </tbody>
                 <div data-bind="visible: (startTime() != '' && endTime() !='')" id="idd" data-idd-plot="chart" style="display: inline-block; width: 1000px; height: 600px;" />

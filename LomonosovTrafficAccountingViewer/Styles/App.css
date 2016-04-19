@@ -39,8 +39,20 @@
     font-size:18px;
 }
 
+.top{
+    font-weight:bold;
+    font-family:'Cambria Math';
+    font-size:25px;
+    width:45px;
+    height:27px;
+}
+
 .radioB{
     font-family:'Cambria Math';
     font-size:19px;
+}
+
+#project{
+    background-color:whitesmoke;
 }
 

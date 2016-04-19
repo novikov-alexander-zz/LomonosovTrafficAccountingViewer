@@ -342,6 +342,10 @@ function getTopGraphic(n, startD, startT, endD, endT, usrList, ids)
 
 function topCut(n, topUsers) {
     var cutTop = [];
+
+    if (n > topUsers.length)
+        return topUsers;
+
     for (var i = 0; i < n; i++)
         cutTop.push({});
 
@@ -381,13 +385,14 @@ function AppViewModel() {
     this.endTime = ko.observable("");
     this.startDate = ko.observable("");
     this.startTime = ko.observable("");
+    this.topN = ko.observable("10");
     this.isBoth = ko.pureComputed(function () {
         if (_this.mode() === "both")
             return true;
         return false;
     })
     this.mode = ko.observable("input");
-    this.modeGraph = ko.observable("top5");
+    this.modeGraph = ko.observable("all");
     this.users = ko.pureComputed(getStructure, this);
 
     this.times = ko.computed(function () {
@@ -399,18 +404,30 @@ function AppViewModel() {
         return getTicks(this.times())
     }, this)
 
-    this.selectedUsers = ko.pureComputed(function () {
-        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
+    this.selectedUsersAll = ko.pureComputed(function () {
+        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [] || this.topN() === "")
             return [];
         if (this.mode() === "both")
-            return getTopSummary(this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users()); 
+            return getTopSummary(this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
         return getTop(this.mode(), this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
     }, this);
 
-    this.ids = ko.computed(function () {
-        if (this.selectedUsers() === [])
+    this.selectedUsers = ko.pureComputed(function () {
+        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [] || this.topN() === "")
             return [];
-        return getIds(this.selectedUsers());
+        return topCut(this.topN(), this.selectedUsersAll());
+    }, this);
+
+    this.selectedUsersSum = ko.pureComputed(function () {
+        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
+            return [];
+        return getTopSummary(this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
+    }, this);
+
+    this.ids = ko.computed(function () {
+        if (this.selectedUsersAll() === [])
+            return [];
+        return getIds(this.selectedUsersSum());
     }, this);
 
     this.top5 = ko.computed(function () {
@@ -478,6 +495,7 @@ function AppViewModel() {
     var polylines1 = [];
     var polylines2 = [];
     var polylines3 = [];
+    var strokes = ['blue', 'green', 'red', 'black', 'plum', 'fuchsia', 'orange', 'lightskyblue', 'saddlebrown', 'lawngreen']
 
     this.graphic = ko.computed(function () {
 
@@ -525,13 +543,13 @@ function AppViewModel() {
                     for (var k = 0; k < polylines3.length; k++)
                         polylines3[k].remove();
 
-                for (var k = 0; k < 5; k++) {
+                for (var k = 4; k >= 0; k--) {
                     polylines2[k] = plot.polyline(this.top5()[k].UID,
                     {
                         x: false,
                         y: this.top5()[k].bytes,
                         thickness: 1.5,
-                        stroke: 'blue'
+                        stroke: strokes[k]
                     });
                 }
             }
@@ -547,13 +565,13 @@ function AppViewModel() {
                     for (var k = 0; k < polylines2.length; k++)
                         polylines2[k].remove();
 
-                for (var k = 0; k < 10; k++) {
+                for (var k = 9; k >= 0; k--) {
                     polylines3[k] = plot.polyline(this.top10()[k].UID,
                     {
                         x: false,
                         y: this.top10()[k].bytes,
                         thickness: 1.5,
-                        stroke: 'blue'
+                        stroke: strokes[k]
                     });
                 }
             }
