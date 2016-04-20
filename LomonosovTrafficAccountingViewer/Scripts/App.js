@@ -378,6 +378,40 @@ function getIds(users)
     return ids;
 }
 
+function getDates(startD, endD)
+{
+    var i = 0, today;
+    var dates = [];
+    
+    var first = startD.split(' ');
+    var last = endD.split(' ');
+    if (last[1].substring(0, 1) == "0")
+        last[1] = last[1].substring(1, 2);
+    today = new Date(first[2], first[1], first[0]);
+    while (today.getDate() != last[0] || today.getMonth() != last[1] || today.getFullYear() != last[2]) {
+        dates[i] = today.getDate()+" 0"+today.getMonth()+" "+today.getFullYear();
+        today.setDate(today.getDate() + 1);
+        i++;
+    }
+    dates[i] = today.getDate() + " 0" + today.getMonth() + " " + today.getFullYear();
+    return dates;
+}
+
+function getFilenames(dates)
+{
+    var outFile = "", i;
+    var files = [];
+    if (dates.length == 0)
+        return [];
+
+    for (i = 0; i < dates.length; i++) {
+        var file = dates[i].split(' ');
+        outFile = "trafficFile-" + file[2] + "-" + file[1] + "-" + file[0] + ".csv";
+        files[i] = outFile;
+    }
+    return files;
+}
+
 function AppViewModel() {
     var _this = this;
     this.csvData = ko.observable("");
@@ -586,10 +620,53 @@ function AppViewModel() {
             });
     }, this);
 
+    ko.computed(function () {
+        if (_this.startDate() != "" && _this.endDate() != "") {
+            if (_this.startDate() == _this.endDate()) {
+                this.fileName = ko.computed(function () {
+                    if (this.startDate() === "" || this.endDate() === "")
+                        return "";
+                    var file = this.startDate().split(' ');
+                    var outFile = "trafficFile-" + file[2] + "-" + file[1] + "-" + file[0] + ".csv";
+                    return outFile;
+                }, this);
 
-    
-    $.get("trafficFile-2016-04-16.csv", function (data) {
-        _this.csvData(data);
+                this.done = ko.computed(function () {
+                    if (_this.fileName() === "")
+                        return 0;
+                    $.get(_this.fileName(), function (data) {
+                        _this.csvData(data);
+                    });
+                    return 1;
+                });
+            }
+            else {
+                this.dates = ko.computed(function () {
+                    if (_this.startDate() === "" || _this.endDate() === "")
+                        return [];
+                    return getDates(_this.startDate(), _this.endDate())
+                });
+
+                this.fileNames = ko.computed(function () {
+                    if (_this.startDate() === "" || _this.endDate() === "" || this.dates() === [])
+                        return [];
+                    alert(this.dates());
+                    return getFilenames(this.dates());
+                }, this);
+
+                this.done = ko.computed(function () {
+                    if (this.fileNames() === [])
+                        return 0;
+                    alert(this.fileNames().length);
+                    for (var i = 0; i < this.fileNames().length; i++) {
+                        $.get(this.fileNames()[i], function (data) {
+                            _this.csvData() = _this.csvData() + _this.csvData(data);
+                        });
+                    }
+                    return 1;
+                });
+            }
+        }
     });
 }
 
