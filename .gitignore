@@ -1,5 +1,7 @@
 LomonosovTrafficAccountingViewer/bin/*
 LomonosovTrafficAccountingViewer/obj/*
-LomonosovTrafficAccountingViewer/Web\.config*
+LomonosovTrafficAccountingViewer/Properties/*
+LomonosovTrafficAccountingViewer/Web*config
 LomonosovTrafficAccountingViewer.csproj.user
 packages/*
+.vs/
