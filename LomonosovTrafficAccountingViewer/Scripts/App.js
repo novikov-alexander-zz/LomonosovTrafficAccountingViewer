@@ -73,6 +73,9 @@ function getTop(mode, startD, startT, endD, endT, usrList)  //just sort. If sort
     //IMPORTANT!!! start, end time must be exactly like in the measurements! 
     //TODO: make time choosing according to measurement's time. (Not random)
 {
+    if (startT === "" || startD === "" || endT === "" || endD === "" || usrList === [])
+        return [];
+
     var i, j, idxStart = -1, idxEnd = -1;
     var topUsers = [];
     i = usrList.length - 1; 
@@ -131,6 +134,9 @@ function getTop(mode, startD, startT, endD, endT, usrList)  //just sort. If sort
 
 function getTopSummary(startD, startT, endD, endT, usrList)  //Like previous, but sort by summary in and out
 {
+    if (startT === "" || startD === "" || endT === "" || endD === "" || usrList === [])
+        return [];
+
     var i, j, idxStart = -1, idxEnd = -1;
     var topUsers = [];
     i = usrList.length - 1;
@@ -186,6 +192,9 @@ function getTopSummary(startD, startT, endD, endT, usrList)  //Like previous, bu
 
 function getTime(startD, startT, endD, endT, usrList)  
 {
+    if (startT === "" || startD === "" || endT === "" || endD === "" || usrList === [])
+        return [];
+
     var i, j, idxStart = -1, idxEnd = -1;
     var times = [];
     if (usrList.length == 0)
@@ -227,6 +236,9 @@ function getTicks(times)
 
 function getGraphic(mode, startD, startT, endD, endT, usrList)
 {
+    if (startT === "" || startD === "" || endT === "" || endD === "" || usrList === [])
+        return [];
+
     var graphUsers = [];
     var i, j, idxStart = -1, idxEnd = -1;
 
@@ -281,6 +293,9 @@ function getGraphic(mode, startD, startT, endD, endT, usrList)
 }
 function getTopGraphic(n, startD, startT, endD, endT, usrList, ids)
 {
+    if (startT === "" || startD === "" || endT === "" || endD === "" || usrList === [] || ids.length == 0)
+        return [];
+
     var i, j, idxStart = -1, idxEnd = -1;
     var usr = [];
 
@@ -339,6 +354,9 @@ function getTopGraphic(n, startD, startT, endD, endT, usrList, ids)
 }
 
 function topCut(n, topUsers) {
+    if (n === "" || topUsers === [])
+        return [];
+
     var cutTop = [];
 
     if (n > topUsers.length)
@@ -446,17 +464,16 @@ function AppViewModel() {
         for (var i = 0; i < fileNames.length; ++i) {
             jQuery.ajaxQueue({
                 url: fileNames[i],
-                dataType: "text",
-                error: alert("There's no such file:" + fileNames[i])
+                dataType: "text"
             }).done(function (data) {
                 _this.users(_this.users().concat(getStructure(data)));
+            }).fail(function (jqXHR, textStatus, error) {
+                alert("There's no such file:" + jqXHR.url);
             });
         }
     }, this);
 
     this.times = ko.computed(function () {
-        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
-            return [];
         return getTime(this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users())
     }, this);
     this.ticks = ko.computed(function () {
@@ -464,22 +481,16 @@ function AppViewModel() {
     }, this)
 
     this.selectedUsersAll = ko.pureComputed(function () {
-        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [] || this.topN() === "")
-            return [];
         if (this.mode() === "both")
             return getTopSummary(this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
         return getTop(this.mode(), this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
     }, this);
 
     this.selectedUsers = ko.pureComputed(function () {
-        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [] || this.topN() === "")
-            return [];
         return topCut(this.topN(), this.selectedUsersAll());
     }, this);
 
     this.selectedUsersSum = ko.pureComputed(function () {
-        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
-            return [];
         return getTopSummary(this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
     }, this);
 
@@ -490,32 +501,22 @@ function AppViewModel() {
     }, this);
 
     this.top5 = ko.computed(function () {
-        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [] || this.ids().length == 0)
-            return [];
         return getTopGraphic(5, this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users(), this.ids());
     }, this);
 
     this.top10 = ko.computed(function () {
-        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [] || this.ids().length == 0)
-            return [];
         return getTopGraphic(10, this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users(), this.ids());
     }, this);
     
     this.inUsers = ko.computed(function () {
-        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
-            return [];
         return getGraphic("input", this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
     }, this);
 
     this.outUsers = ko.computed(function () {
-        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
-            return [];
         return getGraphic("output", this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
     }, this);
 
     this.bothUsers = ko.computed(function () {
-        if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
-            return [];
         return getGraphic("both", this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users());
     }, this);
 
@@ -689,6 +690,12 @@ $(document).ready(function () {
             }
         }
     };
+
+    $.ajaxSetup({
+        beforeSend: function (jqXHR, settings) {
+            jqXHR.url = settings.url;
+        }
+    });
 
     // Activates knockout.js
     ko.applyBindings(new AppViewModel());
