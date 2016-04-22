@@ -15,14 +15,12 @@ function compareSummary(usrA, usrB) //sort by summary in and out
 //------------------------------------------------------------------------------------------
 
 
-function getStructure() //parsing. Return value users structure
+function getStructure(dataStringIn) //parsing. Return value users structure
 {
     var i, j, i1 = -1, j1 = 0, pos1 = 0, counter = 0;
     var dataString;
     var users = [];
 	
-
-    var dataStringIn = this.csvData();
     //check
     if (!dataStringIn) {
         return [];
@@ -414,12 +412,25 @@ function getFilenames(dates)
 
 function AppViewModel() {
     var _this = this;
-    this.csvData = ko.computed(function(){
-});
+   
+
     this.endDate = ko.observable("");
     this.endTime = ko.observable("");
     this.startDate = ko.observable("");
     this.startTime = ko.observable("");
+
+    this.dates = ko.computed(function () {
+        if (_this.startDate() === "" || _this.endDate() === "")
+            return [];
+        return getDates(_this.startDate(), _this.endDate())
+    });
+
+    this.fileNames = ko.computed(function () {
+        if (_this.startDate() === "" || _this.endDate() === "" || this.dates() === [])
+            return [];
+        return getFilenames(this.dates());
+    }, this);
+
     this.topN = ko.observable("10");
     this.isBoth = ko.pureComputed(function () {
         if (_this.mode() === "both")
@@ -428,7 +439,20 @@ function AppViewModel() {
     })
     this.mode = ko.observable("input");
     this.modeGraph = ko.observable("all");
-    this.users = ko.pureComputed(getStructure, this);
+    this.users = ko.observableArray();
+    ko.computed(function () {
+        var fileNames = this.fileNames();
+        _this.users([]);
+        for (var i = 0; i < fileNames.length; ++i) {
+            jQuery.ajaxQueue({
+                url: fileNames[i],
+                dataType: "text",
+                error: alert("There's no such file:" + fileNames[i])
+            }).done(function (data) {
+                _this.users(_this.users().concat(getStructure(data)));
+            });
+        }
+    }, this);
 
     this.times = ko.computed(function () {
         if (this.startTime() === "" || this.startDate() === "" || this.endTime() === "" || this.endDate() === "" || this.users() === [])
@@ -619,77 +643,6 @@ function AppViewModel() {
                 labels: this.times(),
                 ticks: this.ticks()
             });
-    }, this);
-
-    ko.computed(function () {
-        if (_this.startDate() != "" && _this.endDate() != "") {
-            if (_this.startDate() == _this.endDate()) {
-                this.fileName = ko.computed(function () {
-                    if (this.startDate() === "" || this.endDate() === "")
-                        return "";
-                    var file = this.startDate().split(' ');
-                    var outFile = "trafficFile-" + file[2] + "-" + file[1] + "-" + file[0] + ".csv";
-                    return outFile;
-                }, this);
-
-                this.done = ko.computed(function () {
-                    if (_this.fileName() === "")
-                        return 0;
-                    $.get(_this.fileName(), function (data) {
-                        _this.csvData(data);
-                    });
-                    return 1;
-                });
-            }
-            else
-            {
-                this.dates = ko.computed(function () {
-                    if (_this.startDate() === "" || _this.endDate() === "")
-                        return [];
-                    return getDates(_this.startDate(), _this.endDate())
-                });
-
-                this.fileNames = ko.computed(function () {
-                    if (_this.startDate() === "" || _this.endDate() === "" || this.dates() === [])
-                        return [];
-                    return getFilenames(this.dates());
-                }, this);
-
-                this.done = ko.computed(function () {
-                    if (_this.fileNames() == [])
-                        return 0;
-                        var dat = [];
-                        var outDate = "", k = 0;
-                        while(true){
-                            for (var i = 0; i < _this.fileNames().length; i++) {
-                                $.ajax({
-                                    type: "GET",
-                                    url: _this.fileNames()[i],
-                                    dataType: "text",
-                                    success: function (data) {
-                                        dat[i] = data;
-                                        if (dat.length === _this.fileNames().length) {
-                                            for (var f = 0; f < dat.length; f++)
-                                                outDate = outDate + dat[i];
-                                            _this.csvData(outDate);
-                                        }
-                                    }
-                                });
-                            }
-                            break;
-                        }
-                           /* $.get(_this.fileNames()[i], function (data) {
-                                    dat[i] = data;
-                                if (dat.length === _this.fileNames().length) {
-                                    for (var f = 0; f < dat.length; f++)
-                                        outDate = outDate + dat[i];
-                                    _this.csvData(outDate);
-                                }
-                            });*/
-                    return 1;
-                });
-            }
-        }
     }, this);
 }
 
