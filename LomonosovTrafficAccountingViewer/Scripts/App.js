@@ -640,7 +640,8 @@ function AppViewModel() {
                     return 1;
                 });
             }
-            else {
+            else
+            {
                 this.dates = ko.computed(function () {
                     if (_this.startDate() === "" || _this.endDate() === "")
                         return [];
@@ -650,27 +651,50 @@ function AppViewModel() {
                 this.fileNames = ko.computed(function () {
                     if (_this.startDate() === "" || _this.endDate() === "" || this.dates() === [])
                         return [];
-                    alert(this.dates());
                     return getFilenames(this.dates());
                 }, this);
 
                 this.done = ko.computed(function () {
-                    if (this.fileNames() === [])
+                    if (_this.fileNames() == [])
                         return 0;
-                    alert(this.fileNames().length);
-                    for (var i = 0; i < this.fileNames().length; i++) {
-                        $.get(this.fileNames()[i], function (data) {
-                            _this.csvData() = _this.csvData() + _this.csvData(data);
-                        });
-                    }
+                        var dat = [];
+                        var outDate = "", k = 0;
+                        while(true){
+                            for (var i = 0; i < _this.fileNames().length; i++) {
+                                $.ajax({
+                                    type: "GET",
+                                    url: _this.fileNames()[i],
+                                    dataType: "text",
+                                    success: function (data) {
+                                        dat[i] = data;
+                                        if (dat.length === _this.fileNames().length) {
+                                            for (var f = 0; f < dat.length; f++)
+                                                outDate = outDate + dat[i];
+                                            _this.csvData(outDate);
+                                        }
+                                    }
+                                });
+                            }
+                            break;
+                        }
+                           /* $.get(_this.fileNames()[i], function (data) {
+                                    dat[i] = data;
+                                if (dat.length === _this.fileNames().length) {
+                                    for (var f = 0; f < dat.length; f++)
+                                        outDate = outDate + dat[i];
+                                    _this.csvData(outDate);
+                                }
+                            });*/
                     return 1;
                 });
             }
         }
-    });
+    }, this);
 }
 
 $(document).ready(function () {
+
+
     $("#datepicker1").datepicker({
         dateFormat: "dd mm yy"
     });
