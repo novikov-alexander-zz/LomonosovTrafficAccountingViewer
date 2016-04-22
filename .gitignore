@@ -1,4 +1,5 @@
-LomonosovTrafficAccountingViewe/bin/*
-LomonosovTrafficAccountingViewe/obj/*
-LomonosovTrafficAccountingViewe/Web\.config*
-LomonosovTrafficAccountingViewe/cd LomonosovTrafficAccountingViewer.csproj.user
+LomonosovTrafficAccountingViewer/bin/*
+LomonosovTrafficAccountingViewer/obj/*
+LomonosovTrafficAccountingViewer/Web\.config*
+LomonosovTrafficAccountingViewer/cd LomonosovTrafficAccountingViewer.csproj.user
+packages/*
