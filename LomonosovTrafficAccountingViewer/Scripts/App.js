@@ -1,16 +1,16 @@
 ﻿function compareUsersIn(usrA, usrB) //for sort with key input
 {
-    return usrB.packets_in - usrA.packets_in;
+    return usrB.bytes_in - usrA.bytes_in;
 }
 
 function compareUsersOut(usrA, usrB) //for sort with key output
 {
-    return usrB.packets_out - usrA.packets_out;
+    return usrB.bytes_out - usrA.bytes_out;
 }
 
 function compareSummary(usrA, usrB) //sort by summary in and out
 {
-    return usrB.packets - usrA.packets;
+    return usrB.bytes - usrA.bytes;
 }
 //------------------------------------------------------------------------------------------
 
@@ -68,6 +68,61 @@ function getStructure(dataStringIn) //parsing. Return value users structure
     return users;
 }
 
+function getIdxEnd(endT, endD, usrList)
+{
+    var endTime = endT.split(':');
+    var endDate = endD.split(' ');
+
+    for (var i = usrList.length - 1; i >= 0; i--) {
+        var curTime = usrList[i].time.split(':');
+        var curDate = usrList[i].data.split(' ');
+
+        var d1 = new Date(parseInt(endDate[2], 10), (parseInt(endDate[1], 10)) - 1, parseInt(endDate[0], 10), parseInt(endTime[0], 10), parseInt(endTime[1], 10), parseInt(endTime[2], 10));
+        var d2 = new Date(parseInt(curDate[2], 10), (parseInt(curDate[1], 10)) - 1, parseInt(curDate[0], 10), parseInt(curTime[0], 10), parseInt(curTime[1], 10), parseInt(curTime[2], 10));
+        var dd1 = d1.valueOf();
+        var dd2 = d2.valueOf();
+
+        if (curDate[0] != endDate[0]) {
+            idxEnd = i + 1;
+            break;
+        }
+
+        if (dd1 >= dd2) {
+            idxEnd = i;
+            break;
+        }
+    }
+
+    return idxEnd;
+}
+
+function getIdxStart(startT, startD, usrList) {
+    var startTime = startT.split(':');
+    var startDate = startD.split(' ');
+
+    for (var i = 0; i < usrList.length; i++) {
+        var curTime = usrList[i].time.split(':');
+        var curDate = usrList[i].data.split(' ');
+
+        var d1 = new Date(parseInt(startDate[2], 10), (parseInt(startDate[1], 10)) - 1, parseInt(startDate[0], 10), parseInt(startTime[0], 10), parseInt(startTime[1], 10), parseInt(startTime[2], 10));
+        var d2 = new Date(parseInt(curDate[2], 10), (parseInt(curDate[1], 10)) - 1, parseInt(curDate[0], 10), parseInt(curTime[0], 10), parseInt(curTime[1], 10), parseInt(curTime[2], 10));
+        var dd1 = d1.valueOf();
+        var dd2 = d2.valueOf();
+
+        if (curDate[0] != startDate[0]) {
+            idxStart = i - 1;
+            break;
+        }
+
+        if (dd1 <= dd2) {
+            idxStart = i;
+            break;
+        }
+    }
+
+    return idxStart;
+}
+
 function getTop(mode, startD, startT, endD, endT, usrList)  //just sort. If sort by input info, then insert 1 as "input". If sort by output - "input" = 0. StartD, endD - start and end data
     //startT, endT - start and end time. usrList - our structure.
     //IMPORTANT!!! start, end time must be exactly like in the measurements! 
@@ -85,35 +140,23 @@ function getTop(mode, startD, startT, endD, endT, usrList)  //just sort. If sort
         topUsers.push({});
     }
 
-    for (i = 0; i < usrList.length; i++) {
-        if ((usrList[i].data == startD) && (usrList[i].time == startT)) {
-            idxStart = i;
-            break;
-        }
-    }
-    for (i = 0; i < usrList.length; i++) {
-        if ((usrList[i].data == endD) && (usrList[i].time == endT)) {
-            idxEnd = i;
-            break;
-        }
-    }
+    idxStart = getIdxStart(startT, startD, usrList);
+    idxEnd = getIdxEnd(endT, endD, usrList);
+   
     if (idxStart == -1 || idxEnd == -1)
         return [];
-    i = idxStart;
-    while (i <= idxEnd) {
-        for (j = 0; j < usrList[i].user.length; j++) {
+
+    for (j = 0; j < usrList[idxEnd].user.length; j++) {
+            topUsers[j].UID = usrList[idxEnd].user[j].UID;
             topUsers[j].packets_in = 0;
             topUsers[j].packets_out = 0;
             topUsers[j].bytes_in = 0;
             topUsers[j].bytes_out = 0;
         }
-        i++;
-    }
 
     i = idxStart;
     while (i <= idxEnd) {
         for (j = 0; j < usrList[i].user.length; j++) {
-            topUsers[j].UID = usrList[i].user[j].UID;
             topUsers[j].packets_in = topUsers[j].packets_in * 1 + usrList[i].user[j].packets_in * 1;
             topUsers[j].packets_out = topUsers[j].packets_out * 1 + usrList[i].user[j].packets_out * 1;
             topUsers[j].bytes_in = topUsers[j].bytes_in * 1 + usrList[i].user[j].bytes_in * 1;
@@ -144,37 +187,25 @@ function getTopSummary(startD, startT, endD, endT, usrList)  //Like previous, bu
         topUsers.push({});
     }
 
-    for (i = 0; i < usrList.length; i++) {
-        if ((usrList[i].data == startD) && (usrList[i].time == startT)) {
-            idxStart = i;
-            break;
-        }
-    }
-    for (i = 0; i < usrList.length; i++) {
-        if ((usrList[i].data == endD) && (usrList[i].time == endT)) {
-            idxEnd = i;
-            break;
-        }
-    }
+    idxStart = getIdxStart(startT, startD, usrList);
+    idxEnd = getIdxEnd(endT, endD, usrList);
+
     if (idxStart == -1 || idxEnd == -1)
         return [];
-    i = idxStart;
-    while (i <= idxEnd) {
-        for (j = 0; j < usrList[i].user.length; j++) {
-            topUsers[j].packets = 0;
-            topUsers[j].bytes = 0;
-            topUsers[j].packets_in = 0;
-            topUsers[j].packets_out = 0;
-            topUsers[j].bytes_in = 0;
-            topUsers[j].bytes_out = 0;
-        }
-        i++;
+
+    for (j = 0; j < usrList[idxEnd].user.length; j++) {
+        topUsers[j].UID = usrList[idxEnd].user[j].UID;
+        topUsers[j].packets_in = 0;
+        topUsers[j].packets_out = 0;
+        topUsers[j].bytes_in = 0;
+        topUsers[j].bytes_out = 0;
+        topUsers[j].packets = 0;
+        topUsers[j].bytes = 0;
     }
 
     i = idxStart;
     while (i <= idxEnd) {
         for (j = 0; j < usrList[i].user.length; j++) {
-            topUsers[j].UID = usrList[i].user[j].UID;
             topUsers[j].packets_in = topUsers[j].packets_in * 1 + usrList[i].user[j].packets_in * 1;
             topUsers[j].packets_out = topUsers[j].packets_out * 1 + usrList[i].user[j].packets_out * 1;
             topUsers[j].bytes_in = topUsers[j].bytes_in * 1 + usrList[i].user[j].bytes_in * 1;
@@ -200,18 +231,8 @@ function getTime(startD, startT, endD, endT, usrList)
     if (usrList.length == 0)
         return [];
 
-    for (i = 0; i < usrList.length; i++) {
-        if ((usrList[i].data == startD) && (usrList[i].time == startT)) {
-            idxStart = i;
-            break;
-        }
-    }
-    for (i = 0; i < usrList.length; i++) {
-        if ((usrList[i].data == endD) && (usrList[i].time == endT)) {
-            idxEnd = i;
-            break;
-        }
-    }
+    idxStart = getIdxStart(startT, startD, usrList);
+    idxEnd = getIdxEnd(endT, endD, usrList);
 
     i = idxStart;
 	j = 0;
@@ -245,18 +266,9 @@ function getGraphic(mode, startD, startT, endD, endT, usrList)
     if (usrList.length == 0)
         return [];
 
-    for (i = 0; i < usrList.length; i++) {
-        if ((usrList[i].data == startD) && (usrList[i].time == startT)) {
-            idxStart = i;
-            break;
-        }
-    }
-    for (i = 0; i < usrList.length; i++) {
-        if ((usrList[i].data == endD) && (usrList[i].time == endT)) {
-            idxEnd = i;
-            break;
-        }
-    }
+    idxStart = getIdxStart(startT, startD, usrList);
+    idxEnd = getIdxEnd(endT, endD, usrList);
+
     if (idxStart == -1 || idxEnd == -1)
         return [];
 
@@ -314,18 +326,9 @@ function getTopGraphic(n, startD, startT, endD, endT, usrList, ids)
     for (i = 0; i < n; i++) 
         usr[i].UID = ids[i];
 
-    for (i = 0; i < usrList.length; i++) {
-        if ((usrList[i].data == startD) && (usrList[i].time == startT)) {
-            idxStart = i;
-            break;
-        }
-    }
-    for (i = 0; i < usrList.length; i++) {
-        if ((usrList[i].data == endD) && (usrList[i].time == endT)) {
-            idxEnd = i;
-            break;
-        }
-    }
+    idxStart = getIdxStart(startT, startD, usrList);
+    idxEnd = getIdxEnd(endT, endD, usrList);
+
     if (idxStart == -1 || idxEnd == -1)
         return [];
 
@@ -337,7 +340,7 @@ function getTopGraphic(n, startD, startT, endD, endT, usrList, ids)
     {
         for (j=0; j<n; j++)
         {
-            for (var f = 0; f < ids.length; f++)
+            for (var f = 0; f < usrList[i].user.length; f++)
             {
                 if (usrList[i].user[f].UID == usr[j].UID) {
                     sum = usrList[i].user[f].bytes_in * 1 + usrList[i].user[f].bytes_out * 1;

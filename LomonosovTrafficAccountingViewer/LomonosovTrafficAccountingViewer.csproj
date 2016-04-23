@@ -59,12 +59,6 @@
   <ItemGroup>
     <Content Include="Scripts\idd\idd.min.js.map" />
     <Content Include="trafficFile-2016-04-16.csv" />
-    <None Include="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
-    <None Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.html" />
@@ -96,10 +90,20 @@
     <Content Include="Scripts\idd\idd.min.js" />
     <Content Include="Scripts\knockoutjs\knockout-3.4.0.js" />
     <Content Include="Styles\App.css" />
-    <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="web.config" />
+    <Content Include="trafficFile-2016-04-18.csv" />
+    <Content Include="trafficFile-2016-04-19.csv" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
