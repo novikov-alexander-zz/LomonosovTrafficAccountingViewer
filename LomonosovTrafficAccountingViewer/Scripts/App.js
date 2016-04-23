@@ -187,7 +187,7 @@ function getTopSummary(startD, startT, endD, endT, usrList)  //Like previous, bu
     if (startT === "" || startD === "" || endT === "" || endD === "" || usrList === [])
         return [];
 
-    var i, j, idxStart = -1, idxEnd = -1;
+    var i, j;
     var topUsers = [];
     i = usrList.length - 1;
 
@@ -234,7 +234,7 @@ function getTime(startD, startT, endD, endT, usrList)
     if (startT === "" || startD === "" || endT === "" || endD === "" || usrList === [])
         return [];
 
-    var i, j, idxStart = -1, idxEnd = -1;
+    var i, j;
     var times = [];
     if (usrList.length == 0)
         return [];
@@ -269,7 +269,7 @@ function getGraphic(mode, startD, startT, endD, endT, usrList)
         return [];
 
     var graphUsers = [];
-    var i, j, idxStart = -1, idxEnd = -1;
+    var i, j;
 
     if (usrList.length == 0)
         return [];
@@ -316,7 +316,7 @@ function getTopGraphic(n, startD, startT, endD, endT, usrList, ids)
     if (startT === "" || startD === "" || endT === "" || endD === "" || usrList === [] || ids.length == 0)
         return [];
 
-    var i, j, idxStart = -1, idxEnd = -1;
+    var i, j;
     var usr = [];
 
     if (usrList.length == 0)
