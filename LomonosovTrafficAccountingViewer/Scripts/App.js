@@ -492,7 +492,7 @@ function AppViewModel() {
     });
 
     this.fileNames = ko.computed(function () {
-        if (_this.startDate() === "" || _this.endDate() === "" || this.dates() === [])
+        if (this.dates() === [])
             return [];
         return getFilenames(this.dates());
     }, this);
