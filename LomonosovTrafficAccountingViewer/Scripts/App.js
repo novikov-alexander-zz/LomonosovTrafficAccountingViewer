@@ -73,6 +73,8 @@ function getIdxEnd(endT, endD, usrList)
     var endTime = endT.split(':');
     var endDate = endD.split(' ');
 
+    var idxEnd = -1;
+
     for (var i = usrList.length - 1; i >= 0; i--) {
         var curTime = usrList[i].time.split(':');
         var curDate = usrList[i].data.split(' ');
@@ -100,6 +102,8 @@ function getIdxEnd(endT, endD, usrList)
 function getIdxStart(startT, startD, usrList) {
     var startTime = startT.split(':');
     var startDate = startD.split(' ');
+
+    var idxStart = -1;
 
     for (var i = 0; i < usrList.length; i++) {
         var curTime = usrList[i].time.split(':');
@@ -133,7 +137,7 @@ function getTop(mode, startD, startT, endD, endT, usrList)  //just sort. If sort
     if (startT === "" || startD === "" || endT === "" || endD === "" || usrList === [])
         return [];
 
-    var i, j, idxStart = -1, idxEnd = -1;
+    var i, j;
     var topUsers = [];
     i = usrList.length - 1; 
     if (i === -1)
