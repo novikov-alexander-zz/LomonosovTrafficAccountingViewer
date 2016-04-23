@@ -82,15 +82,16 @@ function getIdxEnd(endT, endD, usrList)
         var dd1 = d1.valueOf();
         var dd2 = d2.valueOf();
 
-        if (curDate[0] != endDate[0]) {
+        if (curDate[0] < endDate[0]) {
             idxEnd = i + 1;
             break;
         }
 
-        if (dd1 >= dd2) {
-            idxEnd = i;
-            break;
-        }
+        if (curDate[0] == endDate[0])
+            if (dd1 >= dd2) {
+                idxEnd = i;
+                break;
+            }
     }
 
     return idxEnd;
@@ -109,15 +110,16 @@ function getIdxStart(startT, startD, usrList) {
         var dd1 = d1.valueOf();
         var dd2 = d2.valueOf();
 
-        if (curDate[0] != startDate[0]) {
+        if (curDate[0] > startDate[0]) {
             idxStart = i - 1;
             break;
         }
 
-        if (dd1 <= dd2) {
-            idxStart = i;
-            break;
-        }
+        if (curDate[0] == startDate[0])
+            if (dd1 <= dd2) {
+                idxStart = i;
+                break;
+            }
     }
 
     return idxStart;
