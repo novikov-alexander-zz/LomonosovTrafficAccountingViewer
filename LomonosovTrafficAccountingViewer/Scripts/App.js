@@ -439,6 +439,43 @@ function getFilenames(dates)
     return files;
 }
 
+function usersInit (target) {
+    var _value = ko.observableArray();  //private observable
+
+    var loaded = true;
+
+    var result = ko.computed({
+        read: function () {
+            if (loaded) {
+                loaded = false;
+                var fileNames = target.fileNames();
+                _value([]);
+                if (!fileNames.length) {
+                    loaded = true;
+                } else {
+                    for (var i = 0; i < fileNames.length; ++i) {
+                        jQuery.ajaxQueue({
+                            url: fileNames[i],
+                            dataType: "text"
+                        }).done(function (data) {
+                            _value(_value().concat(getStructure(data)));
+                            if (_value.length == i) {
+                                loaded = true;
+                            }
+                        }).fail(function (jqXHR, textStatus, error) {
+                            alert("There's no such file:" + jqXHR.url);
+                        });
+                    }
+                }
+            }
+            return _value();
+        },
+        deferEvaluation: true  //do not evaluate immediately when created
+    });
+
+    return result;
+};
+
 function AppViewModel() {
     var _this = this;
    
@@ -468,21 +505,8 @@ function AppViewModel() {
     })
     this.mode = ko.observable("input");
     this.modeGraph = ko.observable("all");
-    this.users = ko.observableArray();
-    ko.computed(function () {
-        var fileNames = this.fileNames();
-        _this.users([]);
-        for (var i = 0; i < fileNames.length; ++i) {
-            jQuery.ajaxQueue({
-                url: fileNames[i],
-                dataType: "text"
-            }).done(function (data) {
-                _this.users(_this.users().concat(getStructure(data)));
-            }).fail(function (jqXHR, textStatus, error) {
-                alert("There's no such file:" + jqXHR.url);
-            });
-        }
-    }, this);
+
+    this.users = usersInit(this);
 
     this.times = ko.computed(function () {
         return getTime(this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users())
