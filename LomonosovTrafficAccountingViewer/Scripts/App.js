@@ -136,15 +136,16 @@ function getTop(mode, startD, startT, endD, endT, usrList)  //just sort. If sort
     i = usrList.length - 1; 
     if (i === -1)
         return [];
-    for (j = 0; j < usrList[i].user.length; j++) {
-        topUsers.push({});
-    }
 
     idxStart = getIdxStart(startT, startD, usrList);
     idxEnd = getIdxEnd(endT, endD, usrList);
    
     if (idxStart == -1 || idxEnd == -1)
         return [];
+
+    for (j = 0; j < usrList[idxEnd].user.length; j++) {
+        topUsers.push({});
+    }
 
     for (j = 0; j < usrList[idxEnd].user.length; j++) {
             topUsers[j].UID = usrList[idxEnd].user[j].UID;
@@ -183,15 +184,16 @@ function getTopSummary(startD, startT, endD, endT, usrList)  //Like previous, bu
     var i, j, idxStart = -1, idxEnd = -1;
     var topUsers = [];
     i = usrList.length - 1;
-    for (j = 0; j < usrList[i].user.length; j++) {
-        topUsers.push({});
-    }
 
     idxStart = getIdxStart(startT, startD, usrList);
     idxEnd = getIdxEnd(endT, endD, usrList);
 
     if (idxStart == -1 || idxEnd == -1)
         return [];
+
+    for (j = 0; j < usrList[idxEnd].user.length; j++) {
+        topUsers.push({});
+    }
 
     for (j = 0; j < usrList[idxEnd].user.length; j++) {
         topUsers[j].UID = usrList[idxEnd].user[j].UID;
