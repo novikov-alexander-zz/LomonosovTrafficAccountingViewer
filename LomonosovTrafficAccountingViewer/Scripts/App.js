@@ -100,7 +100,7 @@ function getIdxStart(startT, startD, usrList) {
         var d2 = new Date(parseInt(curDate[2], 10), (parseInt(curDate[1], 10)) - 1, parseInt(curDate[0], 10), parseInt(curTime[0], 10), parseInt(curTime[1], 10), parseInt(curTime[2], 10));
 
 
-        if (d1 >= d2) {
+        if (d1 <= d2) {//check it, please
             idxStart = i;
             break;
         }
