@@ -81,19 +81,11 @@ function getIdxEnd(endT, endD, usrList)
 
         var d1 = new Date(parseInt(endDate[2], 10), (parseInt(endDate[1], 10)) - 1, parseInt(endDate[0], 10), parseInt(endTime[0], 10), parseInt(endTime[1], 10), parseInt(endTime[2], 10));
         var d2 = new Date(parseInt(curDate[2], 10), (parseInt(curDate[1], 10)) - 1, parseInt(curDate[0], 10), parseInt(curTime[0], 10), parseInt(curTime[1], 10), parseInt(curTime[2], 10));
-        var dd1 = d1.valueOf();
-        var dd2 = d2.valueOf();
 
-        if (curDate[0] < endDate[0]) {
-            idxEnd = i + 1;
+        if (d1 <= d2) {
+            idxEnd = i;
             break;
         }
-
-        if (curDate[0] == endDate[0])
-            if (dd1 >= dd2) {
-                idxEnd = i;
-                break;
-            }
     }
 
     return idxEnd;
@@ -111,19 +103,12 @@ function getIdxStart(startT, startD, usrList) {
 
         var d1 = new Date(parseInt(startDate[2], 10), (parseInt(startDate[1], 10)) - 1, parseInt(startDate[0], 10), parseInt(startTime[0], 10), parseInt(startTime[1], 10), parseInt(startTime[2], 10));
         var d2 = new Date(parseInt(curDate[2], 10), (parseInt(curDate[1], 10)) - 1, parseInt(curDate[0], 10), parseInt(curTime[0], 10), parseInt(curTime[1], 10), parseInt(curTime[2], 10));
-        var dd1 = d1.valueOf();
-        var dd2 = d2.valueOf();
 
-        if (curDate[0] > startDate[0]) {
-            idxStart = i - 1;
+
+        if (d1 >= d2) {
+            idxStart = i;
             break;
         }
-
-        if (curDate[0] == startDate[0])
-            if (dd1 <= dd2) {
-                idxStart = i;
-                break;
-            }
     }
 
     return idxStart;
@@ -469,8 +454,7 @@ function usersInit (target) {
                 }
             }
             return _value();
-        },
-        deferEvaluation: true  //do not evaluate immediately when created
+        }
     });
 
     return result;
@@ -506,7 +490,35 @@ function AppViewModel() {
     this.mode = ko.observable("input");
     this.modeGraph = ko.observable("all");
 
-    this.users = usersInit(this);
+    var _value = ko.observableArray();  //private observable
+
+    var loaded = true;
+
+    this.users = ko.computed(function () {
+        if (loaded) {
+            loaded = false;
+            var fileNames = _this.fileNames();
+            _value([]);
+            if (!fileNames.length) {
+                loaded = true;
+            } else {
+                for (var i = 0; i < fileNames.length; ++i) {
+                    jQuery.ajaxQueue({
+                        url: fileNames[i],
+                        dataType: "text"
+                    }).done(function (data) {
+                        _value(_value().concat(getStructure(data)));
+                        if (_value.length == i) {
+                            loaded = true;
+                        }
+                    }).fail(function (jqXHR, textStatus, error) {
+                        alert("There's no such file:" + jqXHR.url);
+                    });
+                }
+            }
+        }
+        return _value();
+    });
 
     this.times = ko.computed(function () {
         return getTime(this.startDate(), this.startTime(), this.endDate(), this.endTime(), this.users())
