@@ -471,30 +471,26 @@ function AppViewModel() {
     this.mode = ko.observable("input");
     this.modeGraph = ko.observable("all");
 
-    var _value = [];  //private observable
+    this.users = ko.observableArray();
 
-    this.users = ko.computed({
-        read: function () {
-            var fileNames = _this.fileNames();
-            _value = [];
-
-            for (var i = 0; i < fileNames.length; ++i) {
-                jQuery.ajaxQueue({
-                    url: fileNames[i],
-                    dataType: "text",
-                    async: false
-                }).done(function (data) {
-                    _value = _value.concat(getStructure(data));
-                    if (_value.length == i) {
-                        loaded = true;
-                    }
-                }).fail(function (jqXHR, textStatus, error) {
-                    alert("There's no such file:" + jqXHR.url);
-                });
-            }
-            return _value;
-        },
-        deferEvaluation: true
+    ko.computed(function () {
+        var fileNames = _this.fileNames();
+        var _value = [];
+        var requests = [];
+        for (var i = 0; i < fileNames.length; ++i) {
+            requests.push(jQuery.ajaxQueue({
+                url: fileNames[i],
+                dataType: "text",
+                async: true
+            }).done(function (data) {
+                _value = _value.concat(getStructure(data));
+            }).fail(function (jqXHR, textStatus, error) {
+                alert("There's no such file:" + jqXHR.url);
+            }));
+        }
+        $.when.apply($, requests).done(function () {
+            _this.users(_value);
+        });
     });
 
     this.times = ko.computed(function () {
