@@ -665,6 +665,9 @@ function AppViewModel() {
                 labels: this.times(),
                 ticks: this.ticks()
             });
+        /*var gridLines = $('#chart > div[data-idd-plot="grid"]');
+        var grid = plot.get(gridLines[0]);
+        grid.xAxis = timeAxis.axis;*/
     }, this);
 }
 
