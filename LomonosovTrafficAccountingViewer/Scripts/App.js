@@ -77,6 +77,8 @@ function getIdxEnd(endT, endD, usrList) {
         var d1 = new Date(parseInt(endDate[2], 10), (parseInt(endDate[1], 10)) - 1, parseInt(endDate[0], 10), parseInt(endTime[0], 10), parseInt(endTime[1], 10), parseInt(endTime[2], 10));
         var d2 = new Date(parseInt(curDate[2], 10), (parseInt(curDate[1], 10)) - 1, parseInt(curDate[0], 10), parseInt(curTime[0], 10), parseInt(curTime[1], 10), parseInt(curTime[2], 10));
 
+        idxEnd = usrList.length - 1;
+
         if (d1 <= d2) {
             idxEnd = i;
             break;
