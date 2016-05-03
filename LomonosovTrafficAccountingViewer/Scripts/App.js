@@ -377,18 +377,44 @@ function getIds(users) {
 function getDates(startD, endD) {
     var i = 0, today;
     var dates = [];
+    var m, d, monthIn, dayIn;
 
     var first = startD.split(' ');
     var last = endD.split(' ');
     if (last[1].substring(0, 1) == "0")
         last[1] = last[1].substring(1, 2);
-    today = new Date(first[2], first[1], first[0]);
-    while (today.getDate() != last[0] || today.getMonth() != last[1] || today.getFullYear() != last[2]) {
-        dates[i] = today.getDate() + " 0" + today.getMonth() + " " + today.getFullYear();
+    today = new Date(first[2], first[1] - 1, first[0]);
+    while (today.getDate() != last[0] || today.getMonth() != last[1] - 1 || today.getFullYear() != last[2]) {
+        m = today.getMonth() * 1 + 1;
+        d = today.getDate();
+
+        if (m >= 1 && m <= 9)
+            monthIn = "0" + m;
+        else
+            monthIn = m;
+
+        if (d >= 1 && d <= 9)
+            dayIn = "0" + d;
+        else
+            dayIn = d;
+        dates[i] = dayIn + " " + monthIn + " " + today.getFullYear();
         today.setDate(today.getDate() + 1);
         i++;
     }
-    dates[i] = today.getDate() + " 0" + today.getMonth() + " " + today.getFullYear();
+    m = today.getMonth()*1 + 1;
+    d = today.getDate();
+
+    if (m >= 1 && m <= 9)
+        monthIn = "0" + m;
+    else
+        monthIn = m;
+
+    if (d >= 1 && d <= 9)
+        dayIn = "0" + d;
+    else
+        dayIn = d;
+
+    dates[i] = dayIn + " " + monthIn + " " + today.getFullYear();
     return dates;
 }
 
@@ -446,11 +472,20 @@ function usersInit(target) {
 function AppViewModel() {
     var _this = this;
 
+    var todayDay = new Date();
+    var month = todayDay.getMonth() * 1 + 1;
+    var toDay = todayDay.getDate() + " 0" + month + " " + todayDay.getFullYear();
 
-    this.endDate = ko.observable("");
-    this.endTime = ko.observable("");
-    this.startDate = ko.observable("");
-    this.startTime = ko.observable("");
+    var lastD = new Date();
+    for (var i = 0; i < 7; i++)
+        lastD.setDate(lastD.getDate() - 1);
+    month = lastD.getMonth() * 1 + 1;
+    var lastDay = lastD.getDate() + " 0" + month + " " + lastD.getFullYear();
+
+    this.startDate = ko.observable(lastDay);
+    this.startTime = ko.observable("08:00:00");
+    this.endDate = ko.observable(toDay);
+    this.endTime = ko.observable("08:00:00");
 
     this.dates = ko.computed(function () {
         if (_this.startDate() === "" || _this.endDate() === "")
@@ -665,7 +700,7 @@ function AppViewModel() {
                 labels: this.times(),
                 ticks: this.ticks()
             });
-        /*var gridLines = $('#chart > div[data-idd-plot="grid"]');
+      /*  var gridLines = $('#chart > div[data-idd-plot="grid"]');
         var grid = plot.get(gridLines[0]);
         grid.xAxis = timeAxis.axis;*/
     }, this);
@@ -673,12 +708,19 @@ function AppViewModel() {
 
 $(document).ready(function () {
 
-
     $("#datepicker1").datepicker({
-        dateFormat: "dd mm yy"
+        minDate: new Date(2016, 03, 18),
+        dateFormat: "dd mm yy",
+        onClose: function (selectedDate) {
+            $("#datepicker2").datepicker("option", "minDate", selectedDate);
+        }
     });
     $("#datepicker2").datepicker({
-        dateFormat: "dd mm yy"
+        minDate: new Date(2016, 03, 18),
+        dateFormat: "dd mm yy",
+        onClose: function (selectedDate) {
+            $("#datepicker1").datepicker("option", "maxDate", selectedDate);
+        }
     });
 
     ko.bindingHandlers.timepicker = {
